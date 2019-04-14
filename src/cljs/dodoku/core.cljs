@@ -26,7 +26,10 @@
        :value (if-let [v (get-in @board [row column])]
                 v
                 "X")
-       :style {:background-color (if (@collisions [row column])
+       :style {:-webkit-appearance "none"
+               :-moz-appearance "none"
+               :appearance "none"
+               :background-color (if (@collisions [row column])
                                    "red"
                                    "white")}}
       [:option
@@ -47,9 +50,6 @@
 (defn board-component []
   (fn []
     [:div
-     [:button
-      {:on-click #(js/alert (str @board))}
-      "board"]
      [:button
       {:on-click #(reset! collisions (sudoku/collisions @board))}
       "test collisions"]
