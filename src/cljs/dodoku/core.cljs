@@ -4,7 +4,8 @@
    [reagent.session :as session]
    [clerk.core :as clerk]
    [dodoku.sudoku :as sudoku]
-   [accountant.core :as accountant]))
+   [accountant.core :as accountant]
+   [clojure.string :as str]))
 
 
 (def board (atom (vec (repeat 9 (vec (repeat 9 nil))))))
@@ -18,6 +19,17 @@
         new-b (assoc b row new-row)]
     new-b))
 
+(defn square-border [row column]
+  (let [top (zero? (rem row 3))
+        left (zero? (rem column 3))
+        bottom (zero? (rem (inc row) 3))
+        right (zero? (rem (inc column) 3))
+        border-str #(if % "3px solid black" "0px solid black")]
+    {:border-top (border-str top)
+     :border-right  (border-str right)
+     :border-bottom  (border-str bottom)
+     :border-left (border-str left)}))
+
 (defn board-cell [row column]
   (fn []
     [:td
@@ -26,12 +38,13 @@
        :value (if-let [v (get-in @board [row column])]
                 v
                 "X")
-       :style {:-webkit-appearance "none"
-               :-moz-appearance "none"
-               :appearance "none"
-               :background-color (if (@collisions [row column])
-                                   "red"
-                                   "white")}}
+       :style (merge (square-border row column)
+                     {:-webkit-appearance "none"
+                      :-moz-appearance "none"
+                      :appearance "none"
+                      :background-color (if (@collisions [row column])
+                                          "red"
+                                          "white")})}
       [:option
        {:key ""
         :value ""} "X"]
@@ -44,12 +57,13 @@
 (defn board-row [row]
   (fn []
     [:tr
-     (for [i (range 9)]
-       [board-cell row i])]))
+     (for [column (range 9)]
+       ^{:key [row column]} [board-cell row column])]))
 
 (defn board-component []
   (fn []
     [:div
+     {:align "center"}
      [:button
       {:on-click #(reset! collisions (sudoku/collisions @board))}
       "test collisions"]
@@ -57,9 +71,10 @@
       {:on-click #(swap! board sudoku/solve)}
       "solve"]
      [:table
-      {:style {:border-collapse "collapse"}}
-      (for [i (range 9)]
-        [board-row i])]]))
+      [:tbody
+       {:style {:border-collapse "collapse"}}
+       (for [i (range 9)]
+         ^{:key i} [board-row i])]]]))
 
 (defn home-page []
   (fn []
@@ -70,7 +85,7 @@
 ;; Initialize app
 
 ;;(defn mount-root []
-  ;;(reagent/render [current-page] (.getElementById js/document "app")))
+;;(reagent/render [current-page] (.getElementById js/document "app")))
 
 
 (defn init! []
