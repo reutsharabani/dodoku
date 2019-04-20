@@ -38,10 +38,6 @@
   :source-paths ["src/clj" "src/cljc"]
   :resource-paths ["resources" "target/cljsbuild"]
 
-  :minify-assets
-  [[:css {:source "resources/public/css/site.css"
-          :target "resources/public/css/site.min.css"}]]
-  
   :cljsbuild
   {:builds {:min
             {:source-paths ["src/cljs" "src/cljc" "env/prod/cljs"]

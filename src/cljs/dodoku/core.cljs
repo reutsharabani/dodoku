@@ -52,7 +52,7 @@
                                               "yellow"
                                               "red")
                                             (if @hover?
-                                              "lightblue"
+                                              "lightgray"
                                               "white"))})}
         [:option
          {:key ""
@@ -78,7 +78,8 @@
                               :solve :out})]
     (fn []
       [:div
-       {:align "center"}
+       {:align "center"
+        :style {:width "60%" :margin "auto"}}
        [:button
         {:on-click #(reset! collisions (sudoku/collisions @board))
          :on-mouse-over #(swap! selected-style assoc :test :hover)
@@ -94,7 +95,8 @@
                        {:width "50%"})}
         "SOLVE"]
        [:table
-        {:style {:width "100%"}}
+        {:style {:width "100%"
+                 :border "2px solid gray"}}
         [:tbody
          {:style {:border-collapse "collapse"}}
          (for [i (range 9)]
