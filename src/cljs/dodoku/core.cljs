@@ -65,10 +65,12 @@
     [:div
      {:align "center"}
      [:button
-      {:on-click #(reset! collisions (sudoku/collisions @board))}
+      {:on-click #(reset! collisions (sudoku/collisions @board))
+       :width "50%"}
       "test collisions"]
      [:button
-      {:on-click #(swap! board sudoku/solve)}
+      {:on-click #(swap! board sudoku/solve)
+       :width "50%"}
       "solve"]
      [:table
       [:tbody
