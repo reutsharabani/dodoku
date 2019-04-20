@@ -79,7 +79,7 @@
     (fn []
       [:div
        {:align "center"
-        :style {:width "60%" :margin "auto"}}
+        :style {:width "70%" :margin "auto"}}
        [:button
         {:on-click #(reset! collisions (sudoku/collisions @board))
          :on-mouse-over #(swap! selected-style assoc :test :hover)
