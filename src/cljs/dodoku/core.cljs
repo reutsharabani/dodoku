@@ -31,52 +31,74 @@
      :border-left (border-str left)}))
 
 (defn board-cell [row column]
-  (fn []
-    [:td
-     [:select
-      {:on-change #(swap! board update-board row column (-> % .-target .-value))
-       :value (if-let [v (get-in @board [row column])]
-                v
-                "X")
-       :style (merge (square-border row column)
-                     {:-webkit-appearance "none"
-                      :-moz-appearance "none"
-                      :appearance "none"
-                      :background-color (if (@collisions [row column])
-                                          "red"
-                                          "white")})}
-      [:option
-       {:key ""
-        :value ""} "X"]
-      (for [v (range 1 10)]
+  (let [hover? (atom false)]
+    (fn []
+      [:td
+       [:select
+        {:on-change #(swap! board update-board row column (-> % .-target .-value))
+         :value (if-let [v (get-in @board [row column])]
+                  v
+                  "X")
+         :on-mouse-over #(swap! hover? not)
+         :on-mouse-out #(swap! hover? not)
+         :style (merge (square-border row column)
+                       {:-webkit-appearance "none"
+                        :width "100%"
+                        :text-align "center"
+                        :-moz-appearance "none"
+                        :appearance "none"
+                        :background-color (if (@collisions [row column])
+                                            (if @hover?
+                                              "yellow"
+                                              "red")
+                                            (if @hover?
+                                              "lightblue"
+                                              "white"))})}
         [:option
-         {:key v
-          :value v}
-         v])]]))
+         {:key ""
+          :value ""} "X"]
+        (for [v (range 1 10)]
+          [:option
+           {:key v
+            :value v}
+           v])]])))
 
 (defn board-row [row]
   (fn []
     [:tr
      (for [column (range 9)]
        ^{:key [row column]} [board-cell row column])]))
+(def buttons-style {:out {:background-color "white"
+                          :color "black"}
+                    :hover {:background-color "black"
+                            :color "white"}})
 
 (defn board-component []
-  (fn []
-    [:div
-     {:align "center"}
-     [:button
-      {:on-click #(reset! collisions (sudoku/collisions @board))
-       :width "50%"}
-      "test collisions"]
-     [:button
-      {:on-click #(swap! board sudoku/solve)
-       :width "50%"}
-      "solve"]
-     [:table
-      [:tbody
-       {:style {:border-collapse "collapse"}}
-       (for [i (range 9)]
-         ^{:key i} [board-row i])]]]))
+  (let [selected-style (atom {:test :out
+                              :solve :out})]
+    (fn []
+      [:div
+       {:align "center"}
+       [:button
+        {:on-click #(reset! collisions (sudoku/collisions @board))
+         :on-mouse-over #(swap! selected-style assoc :test :hover)
+         :on-mouse-out #(swap! selected-style assoc :test :out)
+         :style (merge ((:test @selected-style) buttons-style)
+                       {:width "50%"})}
+        "TEST COLLISIONS"]
+       [:button
+        {:on-click #(swap! board sudoku/solve)
+         :on-mouse-over #(swap! selected-style assoc :solve :hover)
+         :on-mouse-out #(swap! selected-style assoc :solve :out)
+         :style (merge ((:solve @selected-style) buttons-style)
+                       {:width "50%"})}
+        "SOLVE"]
+       [:table
+        {:style {:width "100%"}}
+        [:tbody
+         {:style {:border-collapse "collapse"}}
+         (for [i (range 9)]
+           ^{:key i} [board-row i])]]])))
 
 (defn home-page []
   (fn []
